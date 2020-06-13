@@ -24,20 +24,20 @@ class Dashboard extends Component {
           .firestore()
           .collection("chats")
           .where("users", "array-contains", _user.email)
+          .orderBy("lastUpdate", "desc")
           .onSnapshot(async (res) => {
             const chats = res.docs.map((_doc) => _doc.data());
             await this.setState({
               email: _user.email,
               chats: chats,
             });
-            console.log(this.state);
           });
       }
     });
   }
 
   newChatBtnClicked = () => {
-    this.setState(prevState =>({
+    this.setState((prevState) => ({
       newChatFormVisible: !prevState.newChatFormVisible,
       selectedChat: null,
     }));
@@ -73,7 +73,9 @@ class Dashboard extends Component {
           timestamp: Date.now(),
         }),
         receiverHasRead: false,
+        lastUpdate: Date.now(),
       });
+    this.selectChat(0);
   };
 
   messageRead = () => {
@@ -88,8 +90,6 @@ class Dashboard extends Component {
         .collection("chats")
         .doc(docKey)
         .update({ receiverHasRead: true });
-    } else {
-      console.log("clicked where the sender is the current user");
     }
   };
 
@@ -118,6 +118,7 @@ class Dashboard extends Component {
       .collection("chats")
       .doc(docKey)
       .set({
+        lastUpdate: Date.now(),
         receiverHasRead: false,
         users: [this.state.email, chatObj.sendTo],
         messages: [
@@ -129,7 +130,7 @@ class Dashboard extends Component {
         ],
       });
     this.setState({ newChatFormVisible: false });
-    this.selectChat(this.state.chats.length - 1);
+    this.selectChat(0);
   };
 
   render() {
@@ -144,10 +145,12 @@ class Dashboard extends Component {
           selctedChatIndex={this.state.selectedChat}
           history={this.props.history}
         />
-        {this.state.newChatFormVisible ? <NewChat
+        {this.state.newChatFormVisible ? (
+          <NewChat
             newChatSubmitFn={this.newChatSubmit}
             goToChatFn={this.goToChat}
-          /> : (
+          />
+        ) : (
           <ChatView
             user={this.state.email}
             chat={this.state.chats[this.state.selectedChat]}

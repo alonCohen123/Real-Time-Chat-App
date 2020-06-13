@@ -22,7 +22,6 @@ class ChatView extends Component {
         <div>
           <div className={classes.chatHeader}>
             Your Conversation With {chat.users.filter((u) => u !== user)}
-            {console.log(chat.users.filter((u) => u !== user))}
           </div>
           <main id='chatview-container' className={classes.content}>
             {chat.messages.map((msg, index) => {

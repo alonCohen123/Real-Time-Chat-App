@@ -11,6 +11,7 @@ import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import NotificationImportant from "@material-ui/icons/NotificationImportant";
+import moment from "moment";
 
 class ChatList extends Component {
   state = {};
@@ -74,6 +75,11 @@ class ChatList extends Component {
                             {chat.messages[
                               chat.messages.length - 1
                             ].message.substring(0, 30)}
+                          </Typography>
+                          <Typography component="span" className={classes.timestamp}>
+                            {
+                              moment.unix(chat.lastUpdate/1000).utc().fromNow()
+                            }
                           </Typography>
                         </>
                       }

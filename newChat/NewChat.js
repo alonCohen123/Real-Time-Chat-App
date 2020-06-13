@@ -8,6 +8,8 @@ import {
   withStyles,
   CssBaseline,
   Typography,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import styles from "./styles";
 const firebase = require("firebase");
@@ -15,17 +17,25 @@ const firebase = require("firebase");
 class NewChat extends Component {
   state = {
     email: "",
+    username:"",
     message: "",
     err: "",
+    users:[]
   };
 
+  async componentDidMount() {
+    const usersSnapshot = await firebase.firestore().collection("users").get();
+    const users = usersSnapshot.docs
+    .map((doc) => doc.data().email)
+    this.setState({users:users})
+  }
   userTyping = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
   submitNewChat = async (e) => {
     e.preventDefault();
-    if (firebase.auth().currentUser.email !== this.state.email) {
+    if (firebase.auth().currentUser.email !== this.state.username) {
       const userExists = await this.userExists();
       if (userExists) {
         const chatExists = await this.chatExists();
@@ -33,15 +43,16 @@ class NewChat extends Component {
       } else {
         this.setState({ err: "Sorry User Not Found" });
       }
-    }
-    else{
-      this.setState({ err: "Sorry You Can't Start A Conversation With Yourself" });
+    } else {
+      this.setState({
+        err: "Sorry You Can't Start A Conversation With Yourself",
+      });
     }
   };
 
   createChat = () => {
     this.props.newChatSubmitFn({
-      sendTo: this.state.email,
+      sendTo: this.state.username,
       message: this.state.message,
     });
   };
@@ -51,7 +62,7 @@ class NewChat extends Component {
   };
 
   buildDocKey = () => {
-    return [firebase.auth().currentUser.email, this.state.email]
+    return [firebase.auth().currentUser.email, this.state.username]
       .sort()
       .join(":");
   };
@@ -70,7 +81,7 @@ class NewChat extends Component {
     const usersSnapshot = await firebase.firestore().collection("users").get();
     const exists = usersSnapshot.docs
       .map((doc) => doc.data().email)
-      .includes(this.state.email);
+      .includes(this.state.username);
     // this.setState({
     //   serverError: !exists,
     // });
@@ -79,7 +90,6 @@ class NewChat extends Component {
 
   render() {
     const { classes } = this.props;
-
     return (
       <main className={classes.main}>
         <CssBaseline></CssBaseline>
@@ -88,7 +98,26 @@ class NewChat extends Component {
             Send A Message!
           </Typography>
           <form className={classes.form} onSubmit={this.submitNewChat}>
-            <FormControl fullWidth>
+            <FormControl fullWidth className={classes.formControl}>
+              <InputLabel id="select-label">
+                Your Friend's email
+              </InputLabel>
+              <Select
+                onChange={this.userTyping}
+                name="username"
+                autoFocus
+                labelId="select-label"
+                id="simple-select"
+                value={this.state.username}
+              >
+                {
+                  this.state.users ? this.state.users.map((user,index) =>{
+                    return <MenuItem key={index} value={user}>{user}</MenuItem>
+                  }) : <MenuItem value={null}>Loading...</MenuItem>
+                }
+              </Select>
+            </FormControl>
+            {/* <FormControl fullWidth>
               <InputLabel htmlFor="new-chat-username">
                 Your Friend's email
               </InputLabel>
@@ -97,11 +126,10 @@ class NewChat extends Component {
                 name="email"
                 required
                 className={classes.input}
-                autoFocus
                 onChange={this.userTyping}
                 id="new-chat-username"
               />
-            </FormControl>
+            </FormControl> */}
             <FormControl fullWidth>
               <InputLabel htmlFor="new-chat-message">
                 Enter Your Message

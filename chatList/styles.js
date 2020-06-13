@@ -26,6 +26,12 @@ const styles = (theme) => ({
     top: "0",
     right: "5px",
   },
+  timestamp:{
+    textAlign:'right',
+    color:'grey',
+    fontSize:'13px',
+    margin:'0 5px'
+  }
 });
 
 export default styles;
