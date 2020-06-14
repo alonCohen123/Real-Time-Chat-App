@@ -10,6 +10,8 @@ import {
   Typography,
   Select,
   MenuItem,
+  ListItemAvatar,
+  Avatar,
 } from "@material-ui/core";
 import styles from "./styles";
 const firebase = require("firebase");
@@ -17,19 +19,19 @@ const firebase = require("firebase");
 class NewChat extends Component {
   state = {
     email: "",
-    username:"",
+    username: "",
     message: "",
     err: "",
-    users:[]
+    users: [],
   };
 
   async componentDidMount() {
     const usersSnapshot = await firebase.firestore().collection("users").get();
-    const users = usersSnapshot.docs
-    .map((doc) => doc.data().email)
-    this.setState({users:users})
+    const users = usersSnapshot.docs.map((doc) => doc.data().email);
+    this.setState({ users: users });
   }
   userTyping = (e) => {
+    console.log(e.target.value)
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -99,9 +101,7 @@ class NewChat extends Component {
           </Typography>
           <form className={classes.form} onSubmit={this.submitNewChat}>
             <FormControl fullWidth className={classes.formControl}>
-              <InputLabel id="select-label">
-                Your Friend's email
-              </InputLabel>
+              <InputLabel id="select-label">Your Friend's email</InputLabel>
               <Select
                 onChange={this.userTyping}
                 name="username"
@@ -110,11 +110,20 @@ class NewChat extends Component {
                 id="simple-select"
                 value={this.state.username}
               >
-                {
-                  this.state.users ? this.state.users.map((user,index) =>{
-                    return <MenuItem key={index} value={user}>{user}</MenuItem>
-                  }) : <MenuItem value={null}>Loading...</MenuItem>
-                }
+                {this.state.users ? (
+                  this.state.users.map((user, index) => {
+                    return (
+                      <MenuItem key={index} value={user}>
+                        <ListItemAvatar>
+                          <Avatar alt="avatar">{user.split("")[0]}</Avatar>
+                        </ListItemAvatar>
+                        {user}
+                      </MenuItem>
+                    );
+                  })
+                ) : (
+                  <MenuItem value={null}>Loading...</MenuItem>
+                )}
               </Select>
             </FormControl>
             {/* <FormControl fullWidth>

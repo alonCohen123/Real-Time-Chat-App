@@ -36,6 +36,9 @@ class ChatList extends Component {
     if (this.props.chats.length > 0) {
       return (
         <main className={classes.root}>
+          <Typography component='h1' variant="h5" className={classes.userGreat}>
+            Hello {this.props.userEmail}
+          </Typography>
           <Button
             varient="contained"
             fullWidth

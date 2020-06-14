@@ -31,6 +31,11 @@ const styles = (theme) => ({
     color:'grey',
     fontSize:'13px',
     margin:'0 5px'
+  },
+  userGreat:{
+    textAlign:'center',
+    height:'40px',
+    padding:'10px 0 0 0'
   }
 });
 
